@@ -25,6 +25,7 @@
                 "input": "src/assets",
                 "output": "assets"
               },
+
               {
                 "glob": "**/*",
                 "input": "node_modules/@arcgis/core/assets",
