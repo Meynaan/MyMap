@@ -13,5 +13,20 @@
     </ion-toolbar>
   </ion-header>
 
+  <!-- Dropdown List untuk memilih basemap -->
+  <ion-list>
+    <ion-item>
+      <ion-select interface="popover" [(ngModel)]="selectedBasemap" (ionChange)="changeBasemap()" placeholder="Basemap">
+        <ion-select-option value="streets">Streets</ion-select-option>
+        <ion-select-option value="topo">Topographic</ion-select-option>
+        <ion-select-option value="satellite">Satellite</ion-select-option>
+        <ion-select-option value="topo-vector">Topo Vector</ion-select-option>
+        <ion-select-option value="gray-vector">Gray Vector</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+
+  <!-- Container untuk MapView -->
   <div id="container"></div>
+
 </ion-content>

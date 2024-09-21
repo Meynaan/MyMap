@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
-import { Geolocation } from '@capacitor/geolocation';
+// import { Geolocation } from '@capacitor/geolocation';
 import Graphic from '@arcgis/core/Graphic';
 import Point from '@arcgis/core/geometry/Point';
 import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
+import ImageryLayer from '@arcgis/core/layers/ImageryLayer';
+
 
 @Component({
   selector: 'app-home',
@@ -12,59 +14,67 @@ import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit {
-
-
-  constructor() {}
-  //Variabel
+  mapView: MapView | any;
+  userLocationGraphic: Graphic | any;
   latitude: number | undefined;
   longitude: number | undefined;
+  selectedBasemap!: string;
 
-  public async ngOnInit() {
-    // this.longitude = 110.3670505289091;
-    // this.latitude = -7.782996327423349;
+  constructor() { }
 
-    // Cari lokasi pengguna
-    const coordinates = await Geolocation.getCurrentPosition();
-    this.longitude = coordinates.coords.longitude;
-    this.latitude = coordinates.coords.latitude;
-
-    //instance Peta
+  async ngOnInit() {
+    // Lokasi awal (misalnya: koordinat suatu kota)
+    this.longitude = -94.87588125760244;
+    this.latitude = 38.40988967351812;
     const map = new Map({
       basemap: "topo-vector"
     });
 
-    //Tampilan peta
-    const view = new MapView({
+    // Menampilkan peta pada lokasi awal yang telah ditentukan
+    this.mapView = new MapView({
       container: "container",
       map: map,
-      zoom: 17,
-      center: [this.longitude, this.latitude]
+      zoom: 7,
+      center: [this.longitude, this.latitude] // Lokasi default
     });
 
-    //Simbol Marker
+    // Menambahkan layer citra cuaca
+    const weatherServiceFL = new ImageryLayer({ url: WeatherServiceUrl });
+    map.add(weatherServiceFL);
+
+    // Tambahkan marker ke lokasi yang diinginkan
+    this.addMarker(this.longitude, this.latitude);
+  }
+
+  // Fungsi untuk mengubah basemap
+  async changeBasemap() {
+    this.mapView.map.basemap = this.selectedBasemap;
+  }
+
+  // Fungsi untuk menambahkan marker pada peta
+  addMarker(longitude: number, latitude: number) {
+    const point = new Point({
+      longitude: longitude,
+      latitude: latitude
+    });
+
     const markerSymbol = new SimpleMarkerSymbol({
       color: [165, 42, 42], // Coklat
       outline: {
         color: [255, 248, 220], // Cornsilk
-        width: 1
+        width: 3
       }
     });
 
-    //Marker
-    const point = new Point({
-      longitude: this.longitude,
-      latitude: this.latitude
-    });
-
-    //Grafik marker
     const markerGraphic = new Graphic({
       geometry: point,
       symbol: markerSymbol
     });
-    //tambahkan grafik ke peta
-    view.graphics.add(markerGraphic);
 
-
+    // Menambahkan marker ke MapView
+    this.mapView.graphics.add(markerGraphic);
   }
 
 }
+
+const WeatherServiceUrl = 'https://mapservices.weather.noaa.gov/eventdriven/rest/services/radar/radar_base_reflectivity_time/ImageServer';
